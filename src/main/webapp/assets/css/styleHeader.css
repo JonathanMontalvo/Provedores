@@ -1,0 +1,43 @@
+body {
+    font-family: Arial, sans-serif;
+    /* background-color: #e0f7e0; */
+    background-color: #f2f2f2;
+}
+
+header {
+    background: #343a40;
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.navbar-brand img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.dropdown-menu {
+    white-space: nowrap; /* Impide que los elementos del menú se rompan en varias líneas */
+    max-width: 200px; /* Ancho máximo para los elementos del menú */
+    overflow-x: hidden; /* Oculta cualquier contenido que se desborde horizontalmente */
+}
+
+.dropdown-menu a {
+    overflow: hidden;
+    text-overflow: ellipsis; /* Muestra puntos suspensivos si el texto es demasiado largo */
+    white-space: nowrap; /* Impide que el texto se rompa en varias líneas */
+    padding: 10px 15px; /* Ajusta el padding */
+    margin: 0; /* Elimina márgenes extra */
+}
+
+.dropdown-menu a:hover {
+    background-color: #f8f9fa; /* Color de fondo cuando el mouse pasa sobre el enlace */
+}

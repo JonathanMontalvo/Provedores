@@ -1,0 +1,26 @@
+[
+  {
+    "nombre": "Caja Pequeña",
+    "descripcion": "Caja pequeña ideal para envíos de artículos pequeños.",
+    "precio": 5.99,
+    "dimensiones": "20x20x20 cm",
+    "capacidad": 0.5,
+    "marca": "EnvioExpress"
+  },
+  {
+    "nombre": "Sobre A4",
+    "descripcion": "Sobre tamaño A4 para documentos.",
+    "precio": 1.99,
+    "dimensiones": "30x22 cm",
+    "capacidad": 0.1,
+    "marca": "EnvioExpress"
+  },
+  {
+    "nombre": "Paquete Mediano",
+    "descripcion": "Paquete mediano para envíos de tamaño medio.",
+    "precio": 10.99,
+    "dimensiones": "40x40x40 cm",
+    "capacidad": 1.2,
+    "marca": "EnvioExpress"
+  }
+]

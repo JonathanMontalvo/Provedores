@@ -1,0 +1,58 @@
+[
+  {
+    "placa": "ABC123",
+    "marca": "Toyota",
+    "modelo": "Hiace",
+    "capacidad": 1500,
+    "dimensiones": "3.0x1.6x1.4 m",
+    "anio": 2020,
+    "tipo": "Van",
+    "fechaAdquisicion": "2021-05-15",
+    "estado": "Disponible",
+    "combustible": "Gasolina",
+    "ultimoMantenimiento": "2024-10-01",
+    "ubicacion": "Ciudad de México"
+  },
+  {
+    "placa": "XYZ789",
+    "marca": "Ford",
+    "modelo": "Transit",
+    "capacidad": 2000,
+    "dimensiones": "3.4x1.7x1.8 m",
+    "anio": 2019,
+    "tipo": "Van",
+    "fechaAdquisicion": "2020-08-20",
+    "estado": "Entregar paquete",
+    "combustible": "Diésel",
+    "ultimoMantenimiento": "2024-09-15",
+    "ubicacion": "Jalisco"
+  },
+  {
+    "placa": "LMN456",
+    "marca": "Mercedes-Benz",
+    "modelo": "Sprinter",
+    "capacidad": 3500,
+    "dimensiones": "4.3x1.8x2.0 m",
+    "anio": 2021,
+    "tipo": "Camión",
+    "fechaAdquisicion": "2022-01-10",
+    "estado": "Recoger paquete",
+    "combustible": "Eléctrico",
+    "ultimoMantenimiento": "2024-08-25",
+    "ubicacion": "Nuevo León"
+  },
+  {
+    "placa": "JKL012",
+    "marca": "Freightliner",
+    "modelo": "Cascadia",
+    "capacidad": 25000,
+    "dimensiones": "12.0x2.5x3.0 m",
+    "anio": 2018,
+    "tipo": "Camión",
+    "fechaAdquisicion": "2019-03-12",
+    "estado": "Disponible",
+    "combustible": "Diésel",
+    "ultimoMantenimiento": "2024-07-20",
+    "ubicacion": "Estado de México"
+  }
+]
