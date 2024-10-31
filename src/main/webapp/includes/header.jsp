@@ -39,7 +39,13 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="${contextPath}/pedidos/gestionPedidos.jsp">Gestión de Pedidos</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="pedidosDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Gestión de Pedidos
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="pedidosDropdown">
+                        <a class="dropdown-item" href="${contextPath}/pedidos/agregar">Agregar Pedido</a>
+                        <a class="dropdown-item" href="${contextPath}/pedidos/consultar">Consultar Vehiculo</a>
+                    </div>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="logisticaDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
