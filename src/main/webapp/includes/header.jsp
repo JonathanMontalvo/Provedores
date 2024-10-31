@@ -38,7 +38,7 @@
                         <a class="dropdown-item" href="${contextPath}/vehiculos/consultar">Consultar Vehículo</a>
                     </div>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="pedidosDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Gestión de Pedidos
                     </a>
