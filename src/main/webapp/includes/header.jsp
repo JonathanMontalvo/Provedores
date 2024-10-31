@@ -44,7 +44,7 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="pedidosDropdown">
                         <a class="dropdown-item" href="${contextPath}/pedidos/agregar">Agregar Pedido</a>
-                        <a class="dropdown-item" href="${contextPath}/pedidos/consultar">Consultar Vehiculo</a>
+                        <a class="dropdown-item" href="${contextPath}/pedidos/consultar">Consultar Pedido</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
