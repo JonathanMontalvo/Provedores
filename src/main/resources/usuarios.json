@@ -1,0 +1,57 @@
+[
+  {
+    "nombre": "Juan",
+    "apellidoPaterno": "Pérez",
+    "apellidoMaterno": "García",
+    "correo": "juan@example.com",
+    "telefono": "1234567890",
+    "password": "password123",
+    "confirmPassword": "password123",
+    "rol": "Administrador",
+    "status": 1
+  },
+  {
+    "nombre": "María",
+    "apellidoPaterno": "López",
+    "apellidoMaterno": "Rodríguez",
+    "correo": "maria@example.com",
+    "telefono": "0987654321",
+    "password": "password456",
+    "confirmPassword": "password456",
+    "rol": "Ventas",
+    "status": 1
+  },
+  {
+    "nombre": "Carlos",
+    "apellidoPaterno": "González",
+    "apellidoMaterno": "Martínez",
+    "correo": "carlos@example.com",
+    "telefono": "1122334455",
+    "password": "password789",
+    "confirmPassword": "password789",
+    "rol": "Ventas",
+    "status": 1
+  },
+  {
+    "nombre": "Ana",
+    "apellidoPaterno": "Hernández",
+    "apellidoMaterno": "Sánchez",
+    "correo": "ana@example.com",
+    "telefono": "2233445566",
+    "password": "password012",
+    "confirmPassword": "password012",
+    "rol": "Cliente",
+    "status": 1
+  },
+  {
+    "nombre": "Luis",
+    "apellidoPaterno": "Ramírez",
+    "apellidoMaterno": "Díaz",
+    "correo": "luis@example.com",
+    "telefono": "3344556677",
+    "password": "password345",
+    "confirmPassword": "password345",
+    "rol": "Cliente",
+    "status": 1
+  }
+]
