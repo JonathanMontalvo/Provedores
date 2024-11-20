@@ -1,34 +1,29 @@
 package com.proveedores.proveedores.UsuarioServlet;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.proveedores.proveedores.util.MongoDBUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.bson.Document;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(urlPatterns = {"/administrador/consultar","/administrador/agregar","/administrador/editar"})
+@WebServlet(urlPatterns = {"/administrador/consultar", "/administrador/agregar", "/administrador/editar"})
 public class AdminServlet extends HttpServlet {
-    private List<Usuario> usuarios;
+    private MongoCollection<Document> usuariosCollection;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        Gson gson = new Gson();
-        Type usuarioListType = new TypeToken<List<Usuario>>() {}.getType();
-        try (InputStreamReader reader = new InputStreamReader(
-                new FileInputStream(getServletContext().getRealPath("/WEB-INF/classes/usuarios.json")), "UTF-8")) {
-            usuarios = gson.fromJson(reader, usuarioListType);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        MongoDatabase database = MongoDBUtil.getInstance().getDatabase();
+        usuariosCollection = database.getCollection("Usuarios");
     }
 
     @Override
@@ -43,10 +38,15 @@ public class AdminServlet extends HttpServlet {
             request.getRequestDispatcher("/usuario/agregarUsuario.jsp").forward(request, response);
         } else if ("/administrador/editar".equals(servletPath)) {
             String correo = request.getParameter("correo");
-            Usuario usuario = usuarios.stream().filter(u -> u.getCorreo().equals(correo)).findFirst().orElse(null);
+            Document usuarioDoc = usuariosCollection.find(new Document("correo", correo)).first();
+            Usuario usuario = new Gson().fromJson(usuarioDoc.toJson(), Usuario.class);
             request.setAttribute("usuario", usuario);
             request.getRequestDispatcher("/usuario/statusUsuario.jsp").forward(request, response);
         } else if ("/administrador/consultar".equals(servletPath)) {
+            List<Usuario> usuarios = new ArrayList<>();
+            for (Document doc : usuariosCollection.find()) {
+                usuarios.add(new Gson().fromJson(doc.toJson(), Usuario.class));
+            }
             request.setAttribute("usuarios", usuarios);
             request.getRequestDispatcher("/usuario/consultarUsuarios.jsp").forward(request, response);
         }
@@ -60,45 +60,29 @@ public class AdminServlet extends HttpServlet {
         String servletPath = request.getServletPath();
 
         if ("/administrador/agregar".equals(servletPath)) {
-            // Lógica para agregar un nuevo usuario
-            String nombre = request.getParameter("nombre");
-            String apellidoPaterno = request.getParameter("apellidoPaterno");
-            String apellidoMaterno = request.getParameter("apellidoMaterno");
-            String correo = request.getParameter("correo");
-            String telefono = request.getParameter("telefono");
-            String password = request.getParameter("password");
-            String rol = request.getParameter("rol");
-            int status = 1;
-
             Usuario nuevoUsuario = new Usuario();
-            nuevoUsuario.setNombre(nombre);
-            nuevoUsuario.setApellidoPaterno(apellidoPaterno);
-            nuevoUsuario.setApellidoMaterno(apellidoMaterno);
-            nuevoUsuario.setCorreo(correo);
-            nuevoUsuario.setTelefono(telefono);
-            nuevoUsuario.setPassword(password);
-            nuevoUsuario.setRol(rol);
-            nuevoUsuario.setStatus(status);
+            nuevoUsuario.setNombre(request.getParameter("nombre"));
+            nuevoUsuario.setApellidoPaterno(request.getParameter("apellidoPaterno"));
+            nuevoUsuario.setApellidoMaterno(request.getParameter("apellidoMaterno"));
+            nuevoUsuario.setCorreo(request.getParameter("correo"));
+            nuevoUsuario.setTelefono(request.getParameter("telefono"));
+            nuevoUsuario.setPassword(request.getParameter("password"));
+            nuevoUsuario.setRol(request.getParameter("rol"));
+            nuevoUsuario.setStatus(1);
 
-            usuarios.add(nuevoUsuario);
+            usuariosCollection.insertOne(Document.parse(new Gson().toJson(nuevoUsuario)));
 
-            // Redirigir a la página de "No sé" de usuarios después de agregar el usuario
             response.sendRedirect(request.getContextPath() + "/");
-        }else if ("/administrador/editar".equals(servletPath)) {
-            // Lógica para actualizar un usuario existente
+        } else if ("/administrador/editar".equals(servletPath)) {
             String correo = request.getParameter("correo");
-            Usuario usuario = usuarios.stream().filter(u -> u.getCorreo().equals(correo)).findFirst().orElse(null);
+            Document usuarioDoc = usuariosCollection.find(new Document("correo", correo)).first();
 
-            if (usuario != null) {
-                usuario.setRol(request.getParameter("rol"));
-                if ("1".equals(request.getParameter("status"))){
-                    usuario.setStatus(1);
-                }else {
-                    usuario.setStatus(0);
-                }
+            if (usuarioDoc != null) {
+                Document updateDoc = new Document("$set", new Document("rol", request.getParameter("rol"))
+                        .append("status", "1".equals(request.getParameter("status")) ? 1 : 0));
+                usuariosCollection.updateOne(new Document("correo", correo), updateDoc);
             }
 
-            // Redirigir a la página de "No sé" de usuarios después de actualizar el usuario
             response.sendRedirect(request.getContextPath() + "/administrador/consultar");
         }
     }
