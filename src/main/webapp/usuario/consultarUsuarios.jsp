@@ -36,7 +36,12 @@
                 <td>${usuario.correo}</td>
                 <td>${usuario.telefono}</td>
                 <td>${usuario.rol}</td>
-                <td>${usuario.status}</td>
+                <td>
+                    <c:choose>
+                        <c:when test="${usuario.status == 0}">Inactivo</c:when>
+                        <c:when test="${usuario.status == 1}">Activo</c:when>
+                    </c:choose>
+                </td>
                 <td>
                     <a href="${pageContext.request.contextPath}/administrador/editar?correo=${usuario.correo}" class="btn btn-warning btn-sm">Actualizar</a>
                 </td>

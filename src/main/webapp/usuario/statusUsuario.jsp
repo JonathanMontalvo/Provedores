@@ -34,7 +34,6 @@
             <select class="form-control" id="rol" name="rol" required>
                 <option value="Administrador" <c:if test="${usuario.rol == 'Administrador'}">selected</c:if>>Administrador</option>
                 <option value="Ventas" <c:if test="${usuario.rol == 'Ventas'}">selected</c:if>>Ventas</option>
-                <option value="Cliente" <c:if test="${usuario.rol == 'Cliente'}">selected</c:if>>Cliente (ERP)</option>
             </select>
         </div>
         <div class="form-group">

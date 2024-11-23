@@ -26,10 +26,15 @@
                     <h3>Iniciar Sesión</h3>
                 </div>
                 <div class="card-body">
-                    <form action="login" method="post">
+                    <c:if test="${not empty errorMessage}">
+                        <div class="alert alert-danger" role="alert">
+                                ${errorMessage}
+                        </div>
+                    </c:if>
+                    <form action="${pageContext.request.contextPath}/login" method="post">
                         <div class="form-group">
-                            <label for="email">Correo</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="correo">Correo</label>
+                            <input type="email" class="form-control" id="correo" name="correo" required>
                         </div>
                         <div class="form-group">
                             <label for="password">Contraseña</label>
@@ -42,5 +47,8 @@
         </div>
     </div>
 </div>
+<!-- Enlace a jQuery y Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
