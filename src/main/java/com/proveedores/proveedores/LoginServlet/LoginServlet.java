@@ -56,12 +56,20 @@ public class LoginServlet extends HttpServlet {
         Document usuarioDoc = usuariosCollection.find(query).first();
 
         if (usuarioDoc != null) {
-            // Usuario autenticado
-            Usuario usuario = new Gson().fromJson(usuarioDoc.toJson(), Usuario.class);
+            // Verificar el estado del usuario
+            int status = usuarioDoc.getInteger("status", 0);
+            if (status == 1) {
+                // Usuario activo y autenticado
+                Usuario usuario = new Gson().fromJson(usuarioDoc.toJson(), Usuario.class);
 
-            HttpSession session = request.getSession();
-            session.setAttribute("user", usuario);
-            response.sendRedirect(request.getContextPath() + "/");
+                HttpSession session = request.getSession();
+                session.setAttribute("user", usuario);
+                response.sendRedirect(request.getContextPath() + "/");
+            } else {
+                // Usuario inactivo
+                request.setAttribute("errorMessage", "Usuario inactivo.");
+                request.getRequestDispatcher("/login/iniciarSesion.jsp").forward(request, response);
+            }
         } else {
             // Usuario no encontrado o contraseña incorrecta
             request.setAttribute("errorMessage", "Correo o contraseña incorrectos.");

@@ -1,9 +1,9 @@
 <%--
-  Created by IntelliJ IDEA.
-  User: johnn
-  Date: 28/10/2024
-  Time: 06:09 p. m.
-  To change this template use File | Settings | File Templates.
+Created by IntelliJ IDEA.
+User: johnn
+Date: 28/10/2024
+Time: 06:09 p. m.
+To change this template use File | Settings | File Templates.
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -19,7 +19,9 @@
 <jsp:include page="../includes/header.jsp" />
 <div class="container mt-5">
     <h2>Actualizar Producto</h2>
-    <form action="${pageContext.request.contextPath}/productos/actualizar" method="post">
+    <!-- Enctype multipart/form-data: Asegura que el formulario pueda enviar archivos (en este caso la imagen) -->
+    <form action="${pageContext.request.contextPath}/productos/actualizar" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="${producto.id}">
         <div class="form-group">
             <label for="nombre">Nombre</label>
             <input type="text" class="form-control" id="nombre" name="nombre" value="${producto.nombre}" required>
@@ -43,6 +45,18 @@
         <div class="form-group">
             <label for="marca">Marca</label>
             <input type="text" class="form-control" id="marca" name="marca" value="${producto.marca}" required>
+        </div>
+        <div class="form-group">
+            <label for="status">Estado</label>
+            <select class="form-control" id="status" name="status" required>
+                <option value="1" <c:if test="${producto.status == 1}">selected</c:if>>Activo</option>
+                <option value="0" <c:if test="${producto.status == 0}">selected</c:if>>Inactivo</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="imagen">Imagen</label>
+            <input type="file" class="form-control-file" id="imagen" name="imagen" accept="image/*">
+            <small class="form-text text-muted">Deje esto vacío si no desea cambiar la imagen</small>
         </div>
         <button type="submit" class="btn btn-primary">Actualizar</button>
         <a href="${pageContext.request.contextPath}/productos/consultar" class="btn btn-secondary">Cancelar</a>

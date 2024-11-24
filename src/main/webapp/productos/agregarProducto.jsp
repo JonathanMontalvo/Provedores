@@ -1,9 +1,9 @@
 <%--
-  Created by IntelliJ IDEA.
-  User: johnn
-  Date: 27/10/2024
-  Time: 02:05 p. m.
-  To change this template use File | Settings | File Templates.
+Created by IntelliJ IDEA.
+User: johnn
+Date: 27/10/2024
+Time: 02:05 p. m.
+To change this template use File | Settings | File Templates.
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -20,7 +20,8 @@
 <jsp:include page="../includes/header.jsp" />
 <div class="container mt-5">
     <h2>Registrar Nuevo Producto</h2>
-    <form action="${pageContext.request.contextPath}/producto" method="post">
+    <!-- Enctype multipart/form-data: Asegura que el formulario pueda enviar archivos (en este caso la imagen) -->
+    <form action="${pageContext.request.contextPath}/productos/agregar" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="nombre">Nombre</label>
             <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -44,6 +45,10 @@
         <div class="form-group">
             <label for="marca">Marca</label>
             <input type="text" class="form-control" id="marca" name="marca" required>
+        </div>
+        <div class="form-group">
+            <label for="imagen">Imagen</label>
+            <input type="file" class="form-control-file" id="imagen" name="imagen" accept="image/*" required>
         </div>
         <button type="submit" class="btn btn-primary">Guardar</button>
         <a href="${pageContext.request.contextPath}/productos/agregar" class="btn btn-secondary">Cancelar</a>
