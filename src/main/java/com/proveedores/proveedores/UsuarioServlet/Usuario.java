@@ -2,8 +2,8 @@ package com.proveedores.proveedores.UsuarioServlet;
 
 public class Usuario {
     private String nombre;
-    private String apellidoPaterno;
-    private String apellidoMaterno;
+    private String apellido_Paterno;
+    private String apellido_Materno;
     private String correo;
     private String telefono;
     private String password;
@@ -22,19 +22,19 @@ public class Usuario {
     }
 
     public String getApellidoPaterno() {
-        return apellidoPaterno;
+        return apellido_Paterno;
     }
 
     public void setApellidoPaterno(String apellidoPaterno) {
-        this.apellidoPaterno = apellidoPaterno;
+        this.apellido_Paterno = apellidoPaterno;
     }
 
     public String getApellidoMaterno() {
-        return apellidoMaterno;
+        return apellido_Materno;
     }
 
     public void setApellidoMaterno(String apellidoMaterno) {
-        this.apellidoMaterno = apellidoMaterno;
+        this.apellido_Materno = apellidoMaterno;
     }
 
     public String getCorreo() {

@@ -37,7 +37,9 @@ To change this template use File | Settings | File Templates.
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="logisticaDropdown">
                                 <a class="dropdown-item" href="${contextPath}/logistica/inventario">Visualizar Inventario</a>
-                                <a class="dropdown-item" href="${contextPath}/logistica/ventas">Historial Ventas</a>
+                                <a class="dropdown-item" href="${contextPath}/logistica/historial">Historial Ventas</a>
+                                <a class="dropdown-item" href="${contextPath}/logistica/compras">Historial Compras</a>
+
                             </div>
                         </li>
                         <c:if test="${sessionScope.user.rol == 'Administrador'}">

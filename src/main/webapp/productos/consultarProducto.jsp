@@ -35,7 +35,7 @@ To change this template use File | Settings | File Templates.
                                 <p class="card-text"><strong>Precio:</strong> $${producto.precio}</p>
                                 <p class="card-text"><strong>Dimensiones:</strong> ${producto.dimensiones}</p>
                                 <p class="card-text"><strong>Capacidad:</strong> ${producto.capacidad} kg</p>
-                                <p class="card-text"><strong>Marca:</strong> ${producto.marca}</p>
+                                <p class="card-text"><strong>Proveedor:</strong> ${producto.proveedor}</p>
                                 <a href="${pageContext.request.contextPath}/productos/actualizar?id=${producto.id}" class="btn btn-primary">Editar</a>
                             </div>
                         </div>

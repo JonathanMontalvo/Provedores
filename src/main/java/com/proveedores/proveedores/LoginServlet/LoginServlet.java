@@ -23,7 +23,7 @@ public class LoginServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         MongoDatabase database = MongoDBUtil.getInstance().getDatabase();
-        usuariosCollection = database.getCollection("Usuarios");
+        usuariosCollection = database.getCollection("Usuarios_Proveedores");
     }
 
     @Override

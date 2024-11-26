@@ -20,6 +20,11 @@
 <jsp:include page="../includes/header.jsp" />
 <div class="container mt-5">
     <h2>Editar Usuario</h2>
+    <c:if test="${param.updateFailed eq 'true'}">
+        <div class="alert alert-danger" role="alert" id="updateFailedMessage">
+            Número de teléfono ya registrado.
+        </div>
+    </c:if>
     <c:if test="${param.updateSuccess eq 'true'}">
         <div class="alert alert-success" role="alert" id="updateSuccessMessage">
             Datos actualizados correctamente.

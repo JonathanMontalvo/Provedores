@@ -4,14 +4,12 @@ import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.proveedores.proveedores.UsuarioServlet.Usuario;
 import com.proveedores.proveedores.util.MongoDBUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
+import jakarta.servlet.http.*;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -20,6 +18,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import java.util.List;
 @MultipartConfig // Esta anotación es necesaria para manejar los archivos subidos
 public class ProductoServlet extends HttpServlet {
     private MongoCollection<Document> productosCollection;
+    private MongoCollection<Document> inventarioCollection;
     private static final String UPLOAD_DIRECTORY = "C:/xampp/htdocs/ServidorArchivos/Proveedor/img"; // Cambiar esta ruta por el servidor bueno
 
     @Override
@@ -34,6 +37,7 @@ public class ProductoServlet extends HttpServlet {
         super.init();
         MongoDatabase database = MongoDBUtil.getInstance().getDatabase();
         productosCollection = database.getCollection("Productos");
+        inventarioCollection = database.getCollection("Inventario_Proveedores");
     }
 
     @Override
@@ -43,31 +47,37 @@ public class ProductoServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String servletPath = request.getServletPath();
+        HttpSession session = request.getSession();
+        Usuario usuario = (Usuario) session.getAttribute("user");
 
-        if ("/productos/consultar".equals(servletPath)) {
-            List<Producto> productos = new ArrayList<>();
-            for (Document doc : productosCollection.find()) {
-                Producto producto = new Gson().fromJson(doc.toJson(), Producto.class);
-                producto.setId(doc.getObjectId("_id").toHexString()); // Asignar el ID del documento
+        if (usuario != null) {
+            if ("/productos/consultar".equals(servletPath)) {
+                List<Producto> productos = new ArrayList<>();
+                for (Document doc : productosCollection.find()) {
+                    Producto producto = new Gson().fromJson(doc.toJson(), Producto.class);
+                    producto.setId(doc.getObjectId("_id").toHexString()); // Asignar el ID del documento
 
-                productos.add(producto);
+                    productos.add(producto);
+                }
+                request.setAttribute("productos", productos);
+                request.getRequestDispatcher("/productos/consultarProducto.jsp").forward(request, response);
+            } else if ("/productos/agregar".equals(servletPath)) {
+                request.getRequestDispatcher("/productos/agregarProducto.jsp").forward(request, response);
+            } else if ("/productos/actualizar".equals(servletPath)) {
+                String id = request.getParameter("id");
+                Document productoDoc = productosCollection.find(new Document("_id", new ObjectId(id))).first();
+                Producto producto = new Gson().fromJson(productoDoc.toJson(), Producto.class);
+                producto.setId(id); // Asignar el ID del documento
+                request.setAttribute("producto", producto);
+                request.getRequestDispatcher("/productos/actualizarProducto.jsp").forward(request, response);
+            } else if ("/productos/borrar".equals(servletPath)) {
+                String id = request.getParameter("id");
+                Document updateDoc = new Document("$set", new Document("status", 0));
+                productosCollection.updateOne(new Document("_id", new ObjectId(id)), updateDoc);
+                response.sendRedirect(request.getContextPath() + "/productos/consultar");
             }
-            request.setAttribute("productos", productos);
-            request.getRequestDispatcher("/productos/consultarProducto.jsp").forward(request, response);
-        } else if ("/productos/agregar".equals(servletPath)) {
-            request.getRequestDispatcher("/productos/agregarProducto.jsp").forward(request, response);
-        } else if ("/productos/actualizar".equals(servletPath)) {
-            String id = request.getParameter("id");
-            Document productoDoc = productosCollection.find(new Document("_id", new ObjectId(id))).first();
-            Producto producto = new Gson().fromJson(productoDoc.toJson(), Producto.class);
-            producto.setId(id); // Asignar el ID del documento
-            request.setAttribute("producto", producto);
-            request.getRequestDispatcher("/productos/actualizarProducto.jsp").forward(request, response);
-        } else if ("/productos/borrar".equals(servletPath)) {
-            String id = request.getParameter("id");
-            Document updateDoc = new Document("$set", new Document("status", 0));
-            productosCollection.updateOne(new Document("_id", new ObjectId(id)), updateDoc);
-            response.sendRedirect(request.getContextPath() + "/productos/consultar");
+        }else {
+            response.sendRedirect(request.getContextPath() + "/login");
         }
     }
 
@@ -85,8 +95,8 @@ public class ProductoServlet extends HttpServlet {
             double precio = Double.parseDouble(request.getParameter("precio"));
             String dimensiones = request.getParameter("dimensiones");
             double capacidad = Double.parseDouble(request.getParameter("capacidad"));
-            String marca = request.getParameter("marca");
-            int status = Integer.parseInt(request.getParameter("status"));
+            String proveedor = request.getParameter("proveedor");
+            int status = 1;
             Part imagenPart = request.getPart("imagen");
 
             Producto nuevoProducto = new Producto();
@@ -95,7 +105,7 @@ public class ProductoServlet extends HttpServlet {
             nuevoProducto.setPrecio(precio);
             nuevoProducto.setDimensiones(dimensiones);
             nuevoProducto.setCapacidad(capacidad);
-            nuevoProducto.setMarca(marca);
+            nuevoProducto.setProveedor(proveedor);
             nuevoProducto.setStatus(status); // Producto activo o inactivo
 
             // Insertar el producto sin la imagen
@@ -126,6 +136,19 @@ public class ProductoServlet extends HttpServlet {
                         new Document("$set", new Document("imagen", "http://localhost/ServidorArchivos/Proveedor/img/" + newFileName))); // Almacenar la ruta relativa en la base de datos
             }
 
+            // Inserción en la colección Inventario_Proveedores
+            String ubicacion = nombre.length() % 2 == 0 ? "Almacen A" : "Almacen B";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            String fechaActualizacion = ZonedDateTime.now(ZoneId.of("America/Mexico_City")).format(formatter);
+
+
+            Document inventarioDoc = new Document()
+                    .append("id_Producto", productId)
+                    .append("cantidad", 0)
+                    .append("ubicacion", ubicacion)
+                    .append("fecha_Actualizacion", fechaActualizacion);
+            inventarioCollection.insertOne(inventarioDoc);
+
             // Redirigir a la página de consulta de productos después de agregar el producto
             response.sendRedirect(request.getContextPath() + "/productos/consultar");
         } else if ("/productos/actualizar".equals(servletPath)) {
@@ -144,7 +167,7 @@ public class ProductoServlet extends HttpServlet {
                 double precio = Double.parseDouble(request.getParameter("precio"));
                 String dimensiones = request.getParameter("dimensiones");
                 double capacidad = Double.parseDouble(request.getParameter("capacidad"));
-                String marca = request.getParameter("marca");
+                String proveedor = request.getParameter("proveedor");
                 int status = Integer.parseInt(request.getParameter("status"));
 
                 Document updateDoc = new Document("$set", new Document("nombre", nombre)
@@ -152,7 +175,7 @@ public class ProductoServlet extends HttpServlet {
                         .append("precio", precio)
                         .append("dimensiones", dimensiones)
                         .append("capacidad", capacidad)
-                        .append("marca", marca)
+                        .append("proveedor", proveedor)
                         .append("status", status));
 
                 Part imagenPart = request.getPart("imagen");

@@ -22,7 +22,7 @@ public class UsuarioServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         MongoDatabase database = MongoDBUtil.getInstance().getDatabase();
-        usuariosCollection = database.getCollection("Usuarios");
+        usuariosCollection = database.getCollection("Usuarios_Proveedores");
     }
 
     @Override
@@ -58,6 +58,13 @@ public class UsuarioServlet extends HttpServlet {
         Usuario usuario = (Usuario) session.getAttribute("user");
 
         if (usuario != null) {
+            String telefono = request.getParameter("telefono");
+            Document existingUserByPhone = usuariosCollection.find(new Document("telefono", telefono).append("status", 1)).first();
+            if (existingUserByPhone != null) {
+                response.sendRedirect(request.getContextPath() + "/usuario/editar?updateFailed=true");
+                return; // Detener la ejecución para evitar el segundo redirect }
+            }
+
             usuario.setNombre(request.getParameter("nombre"));
             usuario.setApellidoPaterno(request.getParameter("apellidoPaterno"));
             usuario.setApellidoMaterno(request.getParameter("apellidoMaterno"));
@@ -65,8 +72,8 @@ public class UsuarioServlet extends HttpServlet {
 
             // Actualizar los datos en la base de datos
             Document updateDoc = new Document("$set", new Document("nombre", usuario.getNombre())
-                    .append("apellidoPaterno", usuario.getApellidoPaterno())
-                    .append("apellidoMaterno", usuario.getApellidoMaterno())
+                    .append("apellido_Paterno", usuario.getApellidoPaterno())
+                    .append("apellido_Materno", usuario.getApellidoMaterno())
                     .append("telefono", usuario.getTelefono()));
             usuariosCollection.updateOne(new Document("correo", usuario.getCorreo()), updateDoc);
 

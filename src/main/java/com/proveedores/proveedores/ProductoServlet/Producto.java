@@ -7,7 +7,7 @@ public class Producto {
     private double precio;
     private String dimensiones;
     private double capacidad;
-    private String marca;
+    private String proveedor; //cambiar a proveedor
     private String imagen;
     private int status; // 0 es inactivo, 1 es activo
 
@@ -63,12 +63,12 @@ public class Producto {
         this.capacidad = capacidad;
     }
 
-    public String getMarca() {
-        return marca;
+    public String getProveedor() {
+        return proveedor;
     }
 
-    public void setMarca(String marca) {
-        this.marca = marca;
+    public void setProveedor(String marca) {
+        this.proveedor = marca;
     }
 
     public String getImagen() {

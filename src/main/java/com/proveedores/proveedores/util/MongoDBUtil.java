@@ -10,7 +10,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 public class MongoDBUtil {
-    private static final String CONNECTION_STRING = "mongodb+srv://Pruebas845:vc0o3kOIrZjddHE0@clusterprueba.afcwn.mongodb.net/Proveedores?retryWrites=true&w=majority&appName=ClusterPrueba";
+    private static final String CONNECTION_STRING = "mongodb+srv://proveedores:0KfhA5BB6l0xstku@cluster.yix4x.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster";
     private static MongoDBUtil instance;
     private static MongoClient mongoClient;
     private static MongoDatabase database;
@@ -27,7 +27,7 @@ public class MongoDBUtil {
                 .build();
 
         mongoClient = MongoClients.create(settings);
-        database = mongoClient.getDatabase("Proveedores");
+        database = mongoClient.getDatabase("test");
     }
 
     public static synchronized MongoDBUtil getInstance() {

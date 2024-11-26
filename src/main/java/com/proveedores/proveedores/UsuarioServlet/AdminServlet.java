@@ -24,7 +24,7 @@ public class AdminServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         MongoDatabase database = MongoDBUtil.getInstance().getDatabase();
-        usuariosCollection = database.getCollection("Usuarios");
+        usuariosCollection = database.getCollection("Usuarios_Proveedores");
     }
 
     @Override
@@ -37,34 +37,38 @@ public class AdminServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Usuario currentUser = (Usuario) session.getAttribute("user");
 
-        switch (servletPath) {
-            case "/administrador/agregar":
-                request.getRequestDispatcher("/usuario/agregarUsuario.jsp").forward(request, response);
-                break;
+        if (currentUser != null) {
+            switch (servletPath) {
+                case "/administrador/agregar":
+                    request.getRequestDispatcher("/usuario/agregarUsuario.jsp").forward(request, response);
+                    break;
 
-            case "/administrador/editar":
-                String correo = request.getParameter("correo");
-                Document usuarioDoc = usuariosCollection.find(new Document("correo", correo)).first();
-                if (usuarioDoc != null) {
-                    Usuario usuario = new Gson().fromJson(usuarioDoc.toJson(), Usuario.class);
-                    request.setAttribute("usuario", usuario);
-                    request.getRequestDispatcher("/usuario/statusUsuario.jsp").forward(request, response);
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/administrador/consultar");
-                }
-                break;
-
-            case "/administrador/consultar":
-                List<Usuario> usuarios = new ArrayList<>();
-                for (Document doc : usuariosCollection.find()) {
-                    Usuario usuario = new Gson().fromJson(doc.toJson(), Usuario.class);
-                    if (currentUser != null && !usuario.getCorreo().equals(currentUser.getCorreo())) {
-                        usuarios.add(usuario);
+                case "/administrador/editar":
+                    String correo = request.getParameter("correo");
+                    Document usuarioDoc = usuariosCollection.find(new Document("correo", correo)).first();
+                    if (usuarioDoc != null) {
+                        Usuario usuario = new Gson().fromJson(usuarioDoc.toJson(), Usuario.class);
+                        request.setAttribute("usuario", usuario);
+                        request.getRequestDispatcher("/usuario/statusUsuario.jsp").forward(request, response);
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/administrador/consultar");
                     }
-                }
-                request.setAttribute("usuarios", usuarios);
-                request.getRequestDispatcher("/usuario/consultarUsuarios.jsp").forward(request, response);
-                break;
+                    break;
+
+                case "/administrador/consultar":
+                    List<Usuario> usuarios = new ArrayList<>();
+                    for (Document doc : usuariosCollection.find()) {
+                        Usuario usuario = new Gson().fromJson(doc.toJson(), Usuario.class);
+                        if (currentUser != null && !usuario.getCorreo().equals(currentUser.getCorreo())) {
+                            usuarios.add(usuario);
+                        }
+                    }
+                    request.setAttribute("usuarios", usuarios);
+                    request.getRequestDispatcher("/usuario/consultarUsuarios.jsp").forward(request, response);
+                    break;
+            }
+        }else {
+            response.sendRedirect(request.getContextPath() + "/");
         }
     }
 
@@ -90,9 +94,11 @@ public class AdminServlet extends HttpServlet {
         String correo = request.getParameter("correo");
         String telefono = request.getParameter("telefono");
 
-        // Verificar si el correo o el teléfono ya existen
-        Document existingUserByEmail = usuariosCollection.find(new Document("correo", correo)).first();
-        Document existingUserByPhone = usuariosCollection.find(new Document("telefono", telefono)).first();
+        // Verificar si el correo ya existe y que el status sea igual a 1
+        Document existingUserByEmail = usuariosCollection.find(new Document("correo", correo).append("status", 1)).first();
+
+        // Verificar si el teléfono ya existe y que el status sea igual a 1
+        Document existingUserByPhone = usuariosCollection.find(new Document("telefono", telefono).append("status", 1)).first();
 
         if (existingUserByEmail != null) {
             request.setAttribute("errorMessage", "Usuario con este correo ya existe.");

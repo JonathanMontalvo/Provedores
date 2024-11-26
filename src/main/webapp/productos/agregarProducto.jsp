@@ -43,8 +43,8 @@ To change this template use File | Settings | File Templates.
             <input type="number" class="form-control" id="capacidad" name="capacidad" step="0.01" placeholder="En kilogramos" required>
         </div>
         <div class="form-group">
-            <label for="marca">Marca</label>
-            <input type="text" class="form-control" id="marca" name="marca" required>
+            <label for="proveedor">Proveedor</label>
+            <input type="text" class="form-control" id="proveedor" name="proveedor" required>
         </div>
         <div class="form-group">
             <label for="imagen">Imagen</label>

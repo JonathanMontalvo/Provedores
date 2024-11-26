@@ -43,11 +43,11 @@ To change this template use File | Settings | File Templates.
             <input type="number" class="form-control" id="capacidad" name="capacidad" step="0.01" value="${producto.capacidad}" required>
         </div>
         <div class="form-group">
-            <label for="marca">Marca</label>
-            <input type="text" class="form-control" id="marca" name="marca" value="${producto.marca}" required>
+            <label for="proveedor">Proveedor</label>
+            <input type="text" class="form-control" id="proveedor" name="proveedor" value="${producto.proveedor}" required>
         </div>
         <div class="form-group">
-            <label for="status">Estado</label>
+            <label for="status">Status</label>
             <select class="form-control" id="status" name="status" required>
                 <option value="1" <c:if test="${producto.status == 1}">selected</c:if>>Activo</option>
                 <option value="0" <c:if test="${producto.status == 0}">selected</c:if>>Inactivo</option>
