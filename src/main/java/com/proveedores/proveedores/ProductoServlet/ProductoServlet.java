@@ -1,6 +1,7 @@
 package com.proveedores.proveedores.ProductoServlet;
 
 import com.google.gson.Gson;
+import com.jcraft.jsch.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -116,31 +116,32 @@ public class ProductoServlet extends HttpServlet {
             ObjectId productId = productoDoc.getObjectId("_id");
             nuevoProducto.setId(productId.toHexString());
 
+            // Subir la imagen al servidor SFTP si existe
             if (imagenPart != null && imagenPart.getSize() > 0) {
-                // Obtener la extensión del archivo
-                String fileName = Paths.get(imagenPart.getSubmittedFileName()).getFileName().toString();
+                String fileName = imagenPart.getSubmittedFileName();
                 String fileExtension = fileName.substring(fileName.lastIndexOf("."));
-
-                // Usar el ID del producto como nombre del archivo con la extensión
                 String newFileName = productId.toHexString() + fileExtension;
-                String filePath = UPLOAD_DIRECTORY + File.separator + newFileName;
-                File uploads = new File(UPLOAD_DIRECTORY);
-                if (!uploads.exists()) {
-                    uploads.mkdirs(); // Crear el directorio si no existe
-                }
+
                 try (InputStream input = imagenPart.getInputStream()) {
-                    Files.copy(input, Paths.get(filePath));
+                    try {
+                        uploadFileToSFTP(newFileName, input); // Subir el archivo al servidor SFTP
+                    } catch (JSchException e) {
+                        throw new RuntimeException(e);
+                    } catch (SftpException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-                // Actualizar el producto con la ruta de la imagen
+
+                // Actualizar la base de datos con la nueva ruta de la imagen en el servidor SFTP
+                String imagePath = "http://10.228.2.88/icons/Proveedores/" + newFileName; // Cambiar la ruta a tu servidor SFTP
                 productosCollection.updateOne(Filters.eq("_id", productId),
-                        new Document("$set", new Document("imagen", "http://localhost/ServidorArchivos/Proveedor/img/" + newFileName))); // Almacenar la ruta relativa en la base de datos
+                        new Document("$set", new Document("imagen", imagePath))); // Actualiza la imagen en la base de datos
             }
 
             // Inserción en la colección Inventario_Proveedores
             String ubicacion = nombre.length() % 2 == 0 ? "Almacen A" : "Almacen B";
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
             String fechaActualizacion = ZonedDateTime.now(ZoneId.of("America/Mexico_City")).format(formatter);
-
 
             Document inventarioDoc = new Document()
                     .append("id_Producto", productId)
@@ -159,6 +160,7 @@ public class ProductoServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El ID del producto no se ha proporcionado.");
                 return;
             }
+
             Document productoDoc = productosCollection.find(new Document("_id", new ObjectId(id))).first();
 
             if (productoDoc != null) {
@@ -180,26 +182,20 @@ public class ProductoServlet extends HttpServlet {
 
                 Part imagenPart = request.getPart("imagen");
                 if (imagenPart != null && imagenPart.getSize() > 0) {
-                    // Obtener la extensión del archivo
-                    String fileName = Paths.get(imagenPart.getSubmittedFileName()).getFileName().toString();
+                    String fileName = imagenPart.getSubmittedFileName();
                     String fileExtension = fileName.substring(fileName.lastIndexOf("."));
-
-                    // Usar el ID del producto como nombre del archivo con la extensión
                     String newFileName = id + fileExtension;
-                    String filePath = UPLOAD_DIRECTORY + File.separator + newFileName;
-                    File uploads = new File(UPLOAD_DIRECTORY);
-                    if (!uploads.exists()) {
-                        uploads.mkdirs(); // Crear el directorio si no existe
-                    }
-                    // Sobrescribir el archivo existente
-                    File fileToSave = new File(filePath);
-                    if (fileToSave.exists()) {
-                        fileToSave.delete();
-                    }
+
                     try (InputStream input = imagenPart.getInputStream()) {
-                        Files.copy(input, fileToSave.toPath());
+                        uploadFileToSFTP(newFileName, input); // Subir el archivo al servidor SFTP
+                    } catch (JSchException e) {
+                        throw new RuntimeException(e);
+                    } catch (SftpException e) {
+                        throw new RuntimeException(e);
                     }
-                    updateDoc.append("$set", new Document("imagen", "http://localhost/ServidorArchivos/Proveedor/img/" + newFileName)); // Almacenar la ruta relativa en la base de datos
+
+                    // Actualizar la base de datos con la nueva ruta de la imagen
+                    updateDoc.append("$set", new Document("imagen", "http://10.228.2.88/icons/Proveedores/" + newFileName)); // Cambia la ruta a tu servidor SFTP
                 }
 
                 productosCollection.updateOne(new Document("_id", new ObjectId(id)), updateDoc);
@@ -212,4 +208,36 @@ public class ProductoServlet extends HttpServlet {
             }
         }
     }
+
+    // Método para subir el archivo al servidor SFTP
+    private void uploadFileToSFTP(String fileName, InputStream inputStream) throws JSchException, SftpException, IOException {
+        // Credenciales directamente dentro del método
+        String SFTP_HOST = "10.228.2.88";
+        int SFTP_PORT = 22;
+        String SFTP_USER = "administrador";
+        String SFTP_PASSWORD = "Abcd2024";
+        String REMOTE_DIR = "Proveedores/";
+
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(SFTP_USER, SFTP_HOST, SFTP_PORT);
+        session.setPassword(SFTP_PASSWORD);
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.connect();
+
+        ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
+        channelSftp.connect();
+
+        try {
+            channelSftp.cd(REMOTE_DIR);
+        } catch (SftpException e) {
+            channelSftp.mkdir(REMOTE_DIR);
+            channelSftp.cd(REMOTE_DIR);
+        }
+
+        channelSftp.put(inputStream, fileName);
+
+        channelSftp.disconnect();
+        session.disconnect();
+    }
+
 }

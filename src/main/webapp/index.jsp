@@ -22,14 +22,14 @@
                 <img src="assets/img/imagen1.webp" class="d-block w-100" alt="Quienes Somos">
                 <div class="carousel-caption d-none d-md-block">
                     <h5>¿Quiénes Somos?</h5>
-                    <p>Somos una empresa dedicada a brindar soluciones logísticas integrales con más de 20 años de experiencia en el mercado.</p>
+                    <p>Somos una empresa dedicada a brindar productos de envios con más de 20 años de experiencia en el mercado.</p>
                 </div>
             </div>
             <div class="carousel-item">
                 <img src="assets/img/imagen2.webp" class="d-block w-100" alt="Qué Ofrecemos">
                 <div class="carousel-caption d-none d-md-block">
                     <h5>¿Qué Ofrecemos?</h5>
-                    <p>Ofrecemos una amplia gama de servicios que incluyen transporte, almacenamiento, y gestión de inventarios, adaptados a tus necesidades.</p>
+                    <p>Ofrecemos una amplia gama de productos como cajas, sobres, paltes, entre otros; adaptados a tus necesidades.</p>
                 </div>
             </div>
             <div class="carousel-item">
