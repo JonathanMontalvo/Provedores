@@ -15,9 +15,11 @@ import jakarta.servlet.http.HttpSession;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -210,21 +212,55 @@ public class LogisticaServlet extends HttpServlet {
                 .append("costo_Restock", costoRestock)
                 .append("fecha_Restock", fechaRestock);
 
-        // Insertar el documento en la colección RestockProveedores
-        restockCollection.insertOne(restockDoc);
+        // Realizar la solicitud POST
+        URL url = new URL("http://l10.224.2.240:8080/P-Banco-ERP-8/resources/json/pay");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; utf-8");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setDoOutput(true);
 
-        // Actualizar la cantidad en Inventario_Proveedores
-        Document inventarioDoc = inventarioCollection.find(new Document("_id", new ObjectId(idInventario))).first();
-        if (inventarioDoc != null) {
-            int cantidadActual = inventarioDoc.getInteger("cantidad");
-            int nuevaCantidad = cantidadActual + cantidadReabastecida;
+        String jsonInputString = String.format("{\"accid1\": \"Proveedores\", \"accpass1\": \"noviembre9\", \"accid2\": \"Distribuidores\", \"mount\": %.2f}", costoRestock);
 
-            // Actualizar el documento en la colección Inventario_Proveedores
-            Document updateDoc = new Document("$set", new Document("cantidad", nuevaCantidad).append("fecha_Actualizacion", fechaRestock));
-            inventarioCollection.updateOne(new Document("_id", new ObjectId(idInventario)), updateDoc);
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes("utf-8");
+            os.write(input, 0, input.length);
         }
 
-        // Redirigir a una página de éxito
-        response.sendRedirect(request.getContextPath() + "/logistica/inventario");
+        int code = conn.getResponseCode();
+        StringBuilder responseMessage = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"))) {
+            String responseLine;
+            while ((responseLine = br.readLine()) != null) {
+                responseMessage.append(responseLine.trim());
+            }
+        }
+
+        if (responseMessage.toString().equals("Pago de ACCID1 hacia ACCID2 realizado con éxito.")) {
+            // Insertar el documento en la colección RestockProveedores
+            restockCollection.insertOne(restockDoc);
+
+            // Actualizar la cantidad en Inventario_Proveedores
+            Document inventarioDoc = inventarioCollection.find(new Document("_id", new ObjectId(idInventario))).first();
+            if (inventarioDoc != null) {
+                int cantidadActual = inventarioDoc.getInteger("cantidad");
+                int nuevaCantidad = cantidadActual + cantidadReabastecida;
+
+                // Actualizar el documento en la colección Inventario_Proveedores
+                Document updateDoc = new Document("$set", new Document("cantidad", nuevaCantidad).append("fecha_Actualizacion", fechaRestock));
+                inventarioCollection.updateOne(new Document("_id", new ObjectId(idInventario)), updateDoc);
+            }
+
+            // Redirigir a una página de éxito
+            response.sendRedirect(request.getContextPath() + "/logistica/inventario");
+        } else {
+            // Mostrar el mensaje de error en una alerta
+            response.setContentType("text/html");
+            PrintWriter out = response.getWriter();
+            out.println("<script type=\"text/javascript\">");
+            out.println("alert('" + responseMessage.toString() + "');");
+            out.println("location='" + request.getContextPath() + "/logistica/reabastecimiento';");
+            out.println("</script>");
+        }
     }
 }
